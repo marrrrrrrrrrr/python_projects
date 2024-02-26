@@ -1,7 +1,25 @@
+'''
+პროგრამა მომხმარებელს საშუალებას აძლევს განახორციელოს ძირითადი საბანკო ოპერაციები,
+როგორიცაა ბალანსის შემოწმება, თანხის შეტანა, თანხის გატანა და ტრანზაქციის ისტორიის ნახვა.
+
+მომხმარებლის ანგარიშის მონაცემები ინახება CSV ფაილში, სადაც თითოეულ მწკრივს გააჩნია ანგარიშის ნომრის, სახელისა და ბალანსის ველები.
+
+პროგრამა მომხმარებელს სთხოვს შეიყვანოს ანგარიშის ნომერი საკუთარ ანგარიშზე წვდომისთვის.
+შემდეგ მას შეუძლია აირჩიოს ძირითადი მენიუდან რომელი საბანკო ოპერაციის შესრულება სურს.
+ყველა ტრანზაქცია აღირიცხება ტრანზაქციის ისტორიაში.
+
+ვალიდაციები:
+- ნებისმიერი ოპერაციის შესრულებამდე პროგრამა ამოწმებს, არის თუ არა მითითებული ანგარიშის ნომერი მომხმარებლის მონაცემების ლექსიკონში
+- როდესაც მომხმარებელს სთხოვენ შეიყვანოს თავისი არჩევანი მთავარ მენიუში, პროგრამა ამოწმებს, რომ მისი არჩევანი მოქმედი დიაპაზონის ფარგლებშია (1-5)
+- როდესაც ხდება თანხის გატანა, პროგრამა ამოწმებს, აქვს თუ არა მომხმარებელს საკმარისი თანხა ანგარიშზე
+
+'''
+
+
 import csv
 from datetime import datetime
 
-# ფუნქცია, რომლის საშუალებითაც მონაცემები წაკითხება CSV ფაილიდან და შეინახება dictionary-ში
+# ფუნქცია, რომლის საშუალებითაც მონაცემები წაიკითხება CSV ფაილიდან და შეინახება ლექსიკონში
 def read_user_data(file_name):
     users = {}
     with open(file_name, 'r') as file:
@@ -12,7 +30,7 @@ def read_user_data(file_name):
             users[account_number] = {'name': name, 'balance': float(balance), 'transaction_history': []}
     return users
 
-# ფუნქცია, რომელიც წერს მონაცემებს dictionary-დან CSV ფაილში
+# ფუნქცია, რომელიც წერს მონაცემებს ლექსიკონიდან CSV ფაილში
 def write_user_data(user_data, file_name):
     with open(file_name, 'w', newline='') as file:
         writer = csv.writer(file)
@@ -32,7 +50,7 @@ def deposit(user_data, account_number, amount):
     if account_number in user_data:
         user_data[account_number]['balance'] += amount
         user_data[account_number]['transaction_history'].append((datetime.now(), 'Deposit', amount))
-        write_user_data(user_data, 'users.csv')  # ანახლებს მონაცემებს ფაილში
+        write_user_data(user_data, 'users.csv')
         return True  # თანხის შეტანა წარმატებით განხორციელდა
     else:
         return False  # ანგარიშის ნომერი არ არსებობს
@@ -46,6 +64,7 @@ def withdraw(user_data, account_number, amount):
             write_user_data(user_data, 'users.csv')  # ანახლებს მონაცემებს ფაილში
             return True  # თანხის გატანა წარმატებით განხორციელდა
         else:
+            print("Not enough money on account.")
             return False  # ანგარიშზე არასაკმარისი თანხაა
     else:
         return False  # ანგარიშის ნომერი არ არსებობს
@@ -69,7 +88,7 @@ def main_menu():
     print("4. Show Transaction History")
     print("5. Exit")
 
-# ფუნქცია, რომელიც ამოწმებს არსებობს თუ არა ანგარიში მითითებული ანგარიშის ნომრით
+# ფუნქცია, რომელიც ამოწმებს არსებობს თუ არა მომხმარებელი მითითებული ანგარიშის ნომრით
 def account_exists(user_data, account_number):
     return account_number in user_data
 
@@ -78,7 +97,7 @@ def main():
     # კითხულობს მომხმარებლის მონაცემებს CSV ფაილიდან
     user_data = read_user_data('users.csv')
     
-    # სთხოვს მომხმარებელს შეიყვანოს თავისი ანგარიშის ნომერი
+    # სთხოვს მომხმარებელს შეიყვანოს ანგარიშის ნომერი
     while True:
         account_number = input("Enter your account number: ")
         if not account_exists(user_data, account_number):
@@ -87,7 +106,7 @@ def main():
             break
     
     while True:
-        main_menu()  # გამოაქვს მთავარი მენიუ
+        main_menu()
         choice = input("Please enter your choice (1-5): ")  # მომხმარებელს სთხოვს აირჩიოს რომელი ოპერაციის შესრულება სურს
         if choice == '1':
             # ბალანსის შემოწმება
@@ -114,7 +133,7 @@ def main():
             # ტრანზაქციის ისტორიის ჩვენება
             show_transaction_history(user_data, account_number)
         elif choice == '5':
-            # გამოსვლა პროგრამიდან
+            # პროგრამიდან გამოსვლა
             print("Thank you for using the ATM. Goodbye!")
             break
         else:
