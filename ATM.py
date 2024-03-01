@@ -6,7 +6,7 @@
 
 პროგრამა მომხმარებელს სთხოვს შეიყვანოს ანგარიშის ნომერი საკუთარ ანგარიშზე წვდომისთვის.
 შემდეგ მას შეუძლია აირჩიოს ძირითადი მენიუდან რომელი საბანკო ოპერაციის შესრულება სურს.
-ყველა ტრანზაქცია აღირიცხება ტრანზაქციის ისტორიაში.
+ყოველი ტრანზაქცია ინახება შესაბამის ფაილში, ცალ-ცალკე თითეული ანგარიშისთვის მისი განხორციელების დროის, ტიპის და თანხის მითითებით.
 
 ვალიდაციები:
 - ნებისმიერი ოპერაციის შესრულებამდე პროგრამა ამოწმებს, არის თუ არა მითითებული ანგარიშის ნომერი მომხმარებლის მონაცემების ლექსიკონში
@@ -51,6 +51,7 @@ def deposit(user_data, account_number, amount):
         user_data[account_number]['balance'] += amount
         user_data[account_number]['transaction_history'].append((datetime.now(), 'Deposit', amount))
         write_user_data(user_data, 'users.csv')
+        save_transaction_history(user_data, account_number) # ტრანზაქციას ინახავს შესაბამის ტრანზაქციის ისტორიის ფაილში
         return True  # თანხის შეტანა წარმატებით განხორციელდა
     else:
         return False  # ანგარიშის ნომერი არ არსებობს
@@ -62,6 +63,7 @@ def withdraw(user_data, account_number, amount):
             user_data[account_number]['balance'] -= amount
             user_data[account_number]['transaction_history'].append((datetime.now(), 'Withdrawal', amount))
             write_user_data(user_data, 'users.csv')  # ანახლებს მონაცემებს ფაილში
+            save_transaction_history(user_data, account_number) # ტრანზაქციას ინახავს შესაბამის ტრანზაქციის ისტორიის ფაილში
             return True  # თანხის გატანა წარმატებით განხორციელდა
         else:
             print("Not enough money on account.")
@@ -78,6 +80,14 @@ def show_transaction_history(user_data, account_number):
             print(f"{date_time.strftime('%Y-%m-%d %H:%M:%S')} - {transaction_type}: ₾{amount:.2f}")
     else:
         print("Account not found.")
+
+# ფუნქცია, რომელიც ინახავს განხორციელებულ ტრანზაქციებს შესაბამის ფაილში account_number-ის მიხედვით
+def save_transaction_history(user_data, account_number):
+    filename = f"transaction_history_{account_number}.txt"
+    with open(filename, 'w', encoding='utf-8') as file:
+        for transaction in user_data[account_number]['transaction_history']:
+            date_time, transaction_type, amount = transaction
+            file.write(f"{date_time.strftime('%Y-%m-%d %H:%M:%S')} - {transaction_type}: ₾{amount:.2f}\n")
 
 # ბანკომატის მთავარი მენიუს გამოტანა
 def main_menu():
@@ -134,7 +144,7 @@ def main():
             show_transaction_history(user_data, account_number)
         elif choice == '5':
             # პროგრამიდან გამოსვლა
-            print("Thank you for using the ATM. Goodbye!")
+            print("Exiting the program. Goodbye!")
             break
         else:
             print("Invalid choice. Please enter a number between 1 and 5.")

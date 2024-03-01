@@ -39,7 +39,6 @@ def display_word(word, guessed_letters):
 
 
 def play_hangman():
-    print("Welcome to Hangman!")
     print("Choose a language:")
     print("1. English")
     print("2. Georgian")
