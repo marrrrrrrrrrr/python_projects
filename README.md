@@ -54,6 +54,6 @@ A simple Hangman game playable in either English or Georgian:
 Run any of the Python scripts individually:
 
 ```bash
-python atm.py
+python ATM.py
 python Books_management.py
-python hangman.py
+python Hangman.py
